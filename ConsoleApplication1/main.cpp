@@ -6,13 +6,21 @@
 #include <random>
 #include <time.h>
 #include <vector>
+#include <fstream>
+#include <string>
+#include <sstream>
 #include "random.hpp"
 #include "fasttrigo.h"
 #include <tuple>
 #include <functional>
 #include <vector>
+#include "irrklang/irrKlang.h"
+#pragma comment(lib, "irrKlang.lib") // link with irrKlang.dll
 
+using namespace irrklang;
 using Random = effolkronium::random_static;
+
+ISoundEngine *SoundEngine = createIrrKlangDevice();
 struct param
 {
 	GLfloat fxScale = 1.f, fyScale = 1.f;
@@ -20,6 +28,7 @@ struct param
 	GLfloat fMaxDir = 15;
 	const GLint nChar = 300;
 	GLint cxClient = 1000, cyClient = 480;
+	GLfloat nUpdatePeriod = 0.02f;
 }params;
 
 template <typename T, int MaxLen>
@@ -49,8 +58,8 @@ protected:
 		GLfloat x, y;
 	};
 	const GLfloat PI = 3.1415926;
-	const GLfloat length_speed_ratio = 4e2;
-	const GLfloat speed_ratio = 8e-4;
+	const GLfloat length_speed_ratio = 2e1;
+	const GLfloat speed_ratio = 1.6e-2;
 	GLint alpha = 255, Nth = 0, n = 0;
 	GLint alpha_max = 255, alpha_min = 55;
 	GLfloat fThickness = 2;
@@ -90,7 +99,7 @@ public:
 class Alpha final : public AlphaRain
 {
 public:
-	const GLint density = 5000;
+	const GLint density = 500;
 	GLfloat fDirOld{};
 	GLPoint speed_delta = { 0,2e-9 };
 
@@ -108,7 +117,7 @@ public:
 		alpha = k / size + (alpha_max - k * size_min);
 		character = Random::get('A', 'Z');
 
-		speed = { 0,Random::get<std::normal_distribution<GLfloat>>(speed_ratio, 1e-4f) };
+		speed = { 0,Random::get<std::normal_distribution<GLfloat>>(speed_ratio, 1e-3f) };
 		speed_delta.x = (tan(theta) - tan(params.fDir / 180.f*PI))*speed.y;
 		fLength = sqrt(pow(speed.x, 2) + pow(speed.y, 2))*length_speed_ratio;
 		ptTail = { ptHead.x + fLength * FT::sin(theta), ptHead.y + fLength * FT::cos(theta) };
@@ -171,7 +180,7 @@ public:
 		if (n <= Niter)
 			return -speed0.x / (Niter - Nth);
 		else if (n == Niter + Nhold)
-			return fFinalspd = Random::get<std::normal_distribution<GLfloat>>(speed_ratio*tan(params.fDir / 180.f*PI), 1e-4f*abs(tan(params.fDir / 180.f*PI))), 0.f;
+			return fFinalspd = Random::get<std::normal_distribution<GLfloat>>(speed_ratio*tan(params.fDir / 180.f*PI), 1e-3f*abs(tan(params.fDir / 180.f*PI))), 0.f;
 		else if (n > Niter + Nhold && n < Niter + Nhold + Nfall)
 			return fFinalspd / Nfall;
 		else
@@ -185,7 +194,7 @@ public:
 		else if (n <= Niter)
 			return -fSpdyMax / ((1 - fKSlow)*(Niter - Nth));
 		else if (n == Niter + Nhold)
-			return fFinalspd = Random::get<std::normal_distribution<GLfloat>>(speed_ratio, 1e-4f), 0.f;
+			return fFinalspd = Random::get<std::normal_distribution<GLfloat>>(speed_ratio, 1e-3f), 0.f;
 		else if (n > Niter + Nhold && n < Niter + Nhold + Nfall)
 			return fFinalspd / Nfall;
 		else
@@ -228,7 +237,6 @@ public:
 	//{
 	//	glVertex2f(pt.x + 90.f * size / 2, pt.y + 100.f * size);
 	//}
-
 };
 
 class AlphaStrManager
@@ -238,7 +246,7 @@ public:
 	const GLfloat fAlphaSpace = 152 / 2000.f;
 	AlphaStrManager(const std::string& str = "HELLOWORLD", const GLint& Ndelay = 1000)
 	{
-		GLfloat x, y;;
+		GLfloat x, y;
 		x = Random::get(-params.fxScale, params.fxScale - fAlphaSpace * str.size());
 		y = Random::get(-1.f, 1.f);
 		for (auto&& c : str)
@@ -254,27 +262,87 @@ public:
 			x += fAlphaSpace;
 		}
 	}
+	AlphaStrManager(const std::string& str = "HELLOWORLD", const GLfloat& time = 0.f)
+	{
+		GLfloat x, y;
+		x = Random::get(-params.fxScale, params.fxScale - fAlphaSpace * str.size());
+		y = Random::get(-params.fyScale*0.8, params.fyScale*0.8);
+		for (auto&& c : str)
+		{
+			float delta_t = 1.5f;
+			float hold = 1.5f;
+			alphastr.push_back(
+				AlphaStr(
+					{
+						Random::get(GLint((time - 2 * delta_t) / params.nUpdatePeriod),GLint((time - delta_t) / params.nUpdatePeriod)),
+						time / params.nUpdatePeriod,//Random::get(time/params.nUpdatePeriod ,time / params.nUpdatePeriod *1.1f),
+						hold / params.nUpdatePeriod,
+						Random::get(1.f / params.nUpdatePeriod,2.f / params.nUpdatePeriod)
+					}, toupper(c), { x,y }));
+			x += fAlphaSpace;
+		}
+	}
+	bool bNotFinish = true;
 	bool update()
 	{
-		bool bNotFinish = false;
-		for (auto&& a : alphastr)
+		if (bNotFinish)
 		{
-			bNotFinish |= a.update();
+			for (auto&& a : alphastr)
+			{
+				bNotFinish |= a.update();
+			}
 		}
 		return bNotFinish;
 	}
 	void render()
 	{
-		for (auto&& a : alphastr)
+		if (bNotFinish)
 		{
-			a.render();
+			for (auto&& a : alphastr)
+			{
+				a.render();
+			}
 		}
 	}
+};
 
+class LRCManager
+{
+public:
+	std::vector<AlphaStrManager> alphastrs =
+	{
+		//AlphaStrManager("I know you know",20.37f),
+		//AlphaStrManager("So show it's shows",23.90f),
+	};
+	//std::vector<GLint> vTimeTable{
+	//	int(5.5f / params.nUpdatePeriod),
+	//	int(9.5f / params.nUpdatePeriod),
+	//};
+	GLint n = 0;
+	GLint nTimeTable = 0;
+	LRCManager()
+	{}
+
+	void update()
+	{
+		for (auto&& as : alphastrs)
+		{
+			as.update();
+		}
+
+	}
+	void render()
+	{
+		for (auto&& as : alphastrs)
+		{
+			as.render();
+		}
+	}
 };
 
 std::vector<Alpha> alphas;
 std::vector<AlphaStrManager> alphastr;
+LRCManager alphalrc;
 
 void display(void)
 {
@@ -286,18 +354,19 @@ void display(void)
 
 	for (auto&& alpha : alphas)
 	{
-		alpha.update();
+		//alpha.update();
 		alpha.render();
 	}
-	static auto it = alphastr.begin();
-	if (it != alphastr.end())
-	{
-		if (it->update())
-		{
-			it->render();
-		}
-		else ++it;
-	}
+	alphalrc.render();
+	//static auto it = alphastr.begin();
+	//if (it != alphastr.end())
+	//{
+	//	if (it->update())
+	//	{
+	//		it->render();
+	//	}
+	//	else ++it;
+	//}
 
 	glutSwapBuffers();
 	glFlush();
@@ -342,6 +411,16 @@ void onMouseMove(GLint x, GLint y)
 	params.fDir = 2.f * params.fMaxDir*x / params.cxClient - params.fMaxDir;
 }
 
+void OnTimer(int value)
+{
+	for (auto&& alpha : alphas)
+	{
+		alpha.update();
+	}
+	alphalrc.update();
+	glutTimerFunc(17, OnTimer, 1);
+}
+
 int main(int argc, char **argv)
 {
 	glutInit(&argc, argv);
@@ -358,25 +437,52 @@ int main(int argc, char **argv)
 	glutIdleFunc(idle);             // Register callback handler if no other event
 	glutPassiveMotionFunc(onMouseMove);
 
+
 	for (int i = 0; i != params.nChar; ++i)
 	{
 		alphas.push_back(Alpha());
 	}
 
-	alphastr.push_back(AlphaStrManager("Make me thy lyre, even as the forest is :"));
-	alphastr.push_back(AlphaStrManager("What if my leavers are falling like its own!"));
-	alphastr.push_back(AlphaStrManager("The tmult of thy mighty harmonies"));
-	alphastr.push_back(AlphaStrManager("Will take from both a deep, autumnal tone,"));
-	alphastr.push_back(AlphaStrManager("Sweet though in sadness.Be thou, Spirit fierce,"));
-	alphastr.push_back(AlphaStrManager("My spirit!Be thou me, impetuous one!"));
-	alphastr.push_back(AlphaStrManager("Drive my dead thoughts over the universe"));
-	alphastr.push_back(AlphaStrManager("Like witheered leaves to quicken a new birth!"));
-	alphastr.push_back(AlphaStrManager("And, by the incantation of this verse,"));
-	alphastr.push_back(AlphaStrManager("Scatter, is from an unextinguished hearth"));
-	alphastr.push_back(AlphaStrManager("Ashes and sparks, my words among mankind!"));
-	alphastr.push_back(AlphaStrManager("Be through my lips to unawakened earth"));
-	alphastr.push_back(AlphaStrManager("The trumpet of a prophecy!O Wind,"));
-	alphastr.push_back(AlphaStrManager("If Winter comes, can Spring be far behind?"));
+	std::ifstream data("Anything With You.lrc");
+	if (!data)
+	{
+		std::cout << "could not open file" << std::endl;
+		return 1;
+	}
+	alphalrc.alphastrs.emplace_back(AlphaStrManager("Dedicated to THE BEST MMQ", 10.f));
+
+	std::string str;
+	while (std::getline(data, str))
+	{
+		std::istringstream ss(str);
+		std::string lrc;
+		char c;
+		int min;
+		float second;
+		std::getline(ss >> c >> min >> c >> second >> c, lrc);
+		if (!lrc.empty())
+		{
+			std::cout << lrc << std::endl;
+			alphalrc.alphastrs.emplace_back(AlphaStrManager(lrc, min * 60 + second));
+		}
+	}
+	glutTimerFunc(1, OnTimer, 1);
+	SoundEngine->play2D("Anything With You.mp3", true);
+
+	//alphastr.push_back(AlphaStrManager("Make me thy lyre, even as the forest is :"));
+	//alphastr.push_back(AlphaStrManager("What if my leavers are falling like its own!"));
+	//alphastr.push_back(AlphaStrManager("The tmult of thy mighty harmonies"));
+	//alphastr.push_back(AlphaStrManager("Will take from both a deep, autumnal tone,"));
+	//alphastr.push_back(AlphaStrManager("Sweet though in sadness.Be thou, Spirit fierce,"));
+	//alphastr.push_back(AlphaStrManager("My spirit!Be thou me, impetuous one!"));
+	//alphastr.push_back(AlphaStrManager("Drive my dead thoughts over the universe"));
+	//alphastr.push_back(AlphaStrManager("Like witheered leaves to quicken a new birth!"));
+	//alphastr.push_back(AlphaStrManager("And, by the incantation of this verse,"));
+	//alphastr.push_back(AlphaStrManager("Scatter, is from an unextinguished hearth"));
+	//alphastr.push_back(AlphaStrManager("Ashes and sparks, my words among mankind!"));
+	//alphastr.push_back(AlphaStrManager("Be through my lips to unawakened earth"));
+	//alphastr.push_back(AlphaStrManager("The trumpet of a prophecy!O Wind,"));
+	//alphastr.push_back(AlphaStrManager("If Winter comes, can Spring be far behind?"));
 
 	glutMainLoop();
 	return 0;

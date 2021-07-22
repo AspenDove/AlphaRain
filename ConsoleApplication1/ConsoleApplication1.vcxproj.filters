@@ -13,6 +13,9 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="头文件\irrklang">
+      <UniqueIdentifier>{bd9e7997-6426-4d48-b7a4-a7baec5faf26}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -25,6 +28,69 @@
   <ItemGroup>
     <ClInclude Include="fasttrigo.h">
       <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="irrklang\ik_ESoundEngineOptions.h">
+      <Filter>头文件\irrklang</Filter>
+    </ClInclude>
+    <ClInclude Include="irrklang\ik_ESoundOutputDrivers.h">
+      <Filter>头文件\irrklang</Filter>
+    </ClInclude>
+    <ClInclude Include="irrklang\ik_EStreamModes.h">
+      <Filter>头文件\irrklang</Filter>
+    </ClInclude>
+    <ClInclude Include="irrklang\ik_IAudioRecorder.h">
+      <Filter>头文件\irrklang</Filter>
+    </ClInclude>
+    <ClInclude Include="irrklang\ik_IAudioStream.h">
+      <Filter>头文件\irrklang</Filter>
+    </ClInclude>
+    <ClInclude Include="irrklang\ik_IAudioStreamLoader.h">
+      <Filter>头文件\irrklang</Filter>
+    </ClInclude>
+    <ClInclude Include="irrklang\ik_IFileFactory.h">
+      <Filter>头文件\irrklang</Filter>
+    </ClInclude>
+    <ClInclude Include="irrklang\ik_IFileReader.h">
+      <Filter>头文件\irrklang</Filter>
+    </ClInclude>
+    <ClInclude Include="irrklang\ik_IRefCounted.h">
+      <Filter>头文件\irrklang</Filter>
+    </ClInclude>
+    <ClInclude Include="irrklang\ik_irrKlangTypes.h">
+      <Filter>头文件\irrklang</Filter>
+    </ClInclude>
+    <ClInclude Include="irrklang\ik_ISound.h">
+      <Filter>头文件\irrklang</Filter>
+    </ClInclude>
+    <ClInclude Include="irrklang\ik_ISoundDeviceList.h">
+      <Filter>头文件\irrklang</Filter>
+    </ClInclude>
+    <ClInclude Include="irrklang\ik_ISoundEffectControl.h">
+      <Filter>头文件\irrklang</Filter>
+    </ClInclude>
+    <ClInclude Include="irrklang\ik_ISoundEngine.h">
+      <Filter>头文件\irrklang</Filter>
+    </ClInclude>
+    <ClInclude Include="irrklang\ik_ISoundMixedOutputReceiver.h">
+      <Filter>头文件\irrklang</Filter>
+    </ClInclude>
+    <ClInclude Include="irrklang\ik_ISoundSource.h">
+      <Filter>头文件\irrklang</Filter>
+    </ClInclude>
+    <ClInclude Include="irrklang\ik_ISoundStopEventReceiver.h">
+      <Filter>头文件\irrklang</Filter>
+    </ClInclude>
+    <ClInclude Include="irrklang\ik_IVirtualRefCounted.h">
+      <Filter>头文件\irrklang</Filter>
+    </ClInclude>
+    <ClInclude Include="irrklang\ik_SAudioStreamFormat.h">
+      <Filter>头文件\irrklang</Filter>
+    </ClInclude>
+    <ClInclude Include="irrklang\ik_vec3d.h">
+      <Filter>头文件\irrklang</Filter>
+    </ClInclude>
+    <ClInclude Include="irrklang\irrKlang.h">
+      <Filter>头文件\irrklang</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

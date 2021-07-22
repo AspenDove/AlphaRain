@@ -24,6 +24,27 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="fasttrigo.h" />
+    <ClInclude Include="irrklang\ik_ESoundEngineOptions.h" />
+    <ClInclude Include="irrklang\ik_ESoundOutputDrivers.h" />
+    <ClInclude Include="irrklang\ik_EStreamModes.h" />
+    <ClInclude Include="irrklang\ik_IAudioRecorder.h" />
+    <ClInclude Include="irrklang\ik_IAudioStream.h" />
+    <ClInclude Include="irrklang\ik_IAudioStreamLoader.h" />
+    <ClInclude Include="irrklang\ik_IFileFactory.h" />
+    <ClInclude Include="irrklang\ik_IFileReader.h" />
+    <ClInclude Include="irrklang\ik_IRefCounted.h" />
+    <ClInclude Include="irrklang\ik_irrKlangTypes.h" />
+    <ClInclude Include="irrklang\ik_ISound.h" />
+    <ClInclude Include="irrklang\ik_ISoundDeviceList.h" />
+    <ClInclude Include="irrklang\ik_ISoundEffectControl.h" />
+    <ClInclude Include="irrklang\ik_ISoundEngine.h" />
+    <ClInclude Include="irrklang\ik_ISoundMixedOutputReceiver.h" />
+    <ClInclude Include="irrklang\ik_ISoundSource.h" />
+    <ClInclude Include="irrklang\ik_ISoundStopEventReceiver.h" />
+    <ClInclude Include="irrklang\ik_IVirtualRefCounted.h" />
+    <ClInclude Include="irrklang\ik_SAudioStreamFormat.h" />
+    <ClInclude Include="irrklang\ik_vec3d.h" />
+    <ClInclude Include="irrklang\irrKlang.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>
@@ -86,6 +107,7 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
+    <LibraryPath>$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
@@ -143,6 +165,8 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalOptions>/SAFESEH:NO %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>C:\Users\LAPTOP-SUN\Documents\projects\OpenGL\AlphaRain\ConsoleApplication1\iirKlanglib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
